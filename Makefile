@@ -10,9 +10,9 @@ CFLAGS = -g -O2 -Wall -Wno-unused-variable -Wno-unused-function \
          -I. -I./plan9/include -I./protocol -I./shim -I./acme \
          $(PKG_CFLAGS) -iquote ./wld
 
-LDFLAGS = -L./plan9/lib -L./wld
+LDFLAGS = -L./plan9/lib
 LIBS = -Wl,--start-group -lplumb -l9pclient -lmux -lcomplete -lbio -lframe -lthread -l9 -Wl,--end-group \
-       -Wl,-Bstatic -lwld -Wl,-Bdynamic \
+       $(WLD_LIB) \
        -ldrm -ldrm_intel -ldrm_nouveau \
        $(PKG_LIBS) \
        -lcrypto -lpthread -lm -lrt
