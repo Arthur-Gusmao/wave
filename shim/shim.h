@@ -22,6 +22,9 @@
 #include "wayland-state.h"
 #include "xdg-shell-client-protocol.h"
 
+#define TIMEDIFF(t1, t2)	((t1.tv_sec-t2.tv_sec)*1000 + \
+				(t1.tv_nsec-t2.tv_nsec)/1E6)
+
 typedef struct ImageWld ImageWld;
 struct ImageWld {
 	Image base;  /* plan 9 image structure */
@@ -37,6 +40,17 @@ struct FontWld {
 	struct wld_font *wld_font;
 };
 
+typedef struct KeyRepeat KeyRepeat;
+struct KeyRepeat {
+	int isactive;
+	int isrepeat;
+	Rune rune;
+	struct timespec last;
+	uint32 delay;
+	uint32 interval;
+};
+
+extern KeyRepeat repeat;
 extern WaylandState *wl_state;
 extern Display *display;
 extern Font *font;

@@ -3,6 +3,7 @@
  */
 
 #include "shim.h"
+#include "../config.h"
 
 WaylandState *wl_state = nil;
 
@@ -29,6 +30,16 @@ static const struct xdg_surface_listener xdg_surface_listener = {
 static const struct xdg_toplevel_listener xdg_toplevel_listener = {
 	.configure = xdg_toplevel_configure,
 	.close = xdg_toplevel_close,
+};
+
+KeyRepeat repeat = {
+	.isactive = 0,
+	.isrepeat = 0,
+	.rune = 0,
+	.last = {0},
+	/* these two should be in the kb repeat info func */
+	.delay = KEY_REPEAT_DELAY,
+	.interval = KEY_REPEAT_INTERVAL,
 };
 
 static void
@@ -242,20 +253,48 @@ wayland_init(char *label, int width, int height)
 void
 wayland_event_thread(void *arg)
 {
+	struct timespec now, last;
+
+	/* ms */
+	int timeout;
+
 	while (wl_state && wl_state->running) {
 		int fd;
 		struct pollfd pfd;
-
-		wl_display_dispatch_pending(wl_state->wl_display);
+		
+		while (wl_display_prepare_read(wl_state->wl_display) != 0)
+			wl_display_dispatch_pending(wl_state->wl_display);
+		
 		wl_display_flush(wl_state->wl_display);
+
+		timeout = 10;
+		clock_gettime(CLOCK_MONOTONIC, &now);
+
+		int diff = TIMEDIFF(now, repeat.last);
+		int final = repeat.isrepeat ? repeat.interval : repeat.delay;
+		
+		/* repeat that bitch */
+		if (repeat.isactive) {
+			if (diff >= final) {
+				send(wl_state->kbdc, &repeat.rune);
+				clock_gettime(CLOCK_MONOTONIC, &repeat.last);
+				repeat.isrepeat = 1;
+				timeout = repeat.interval;
+			} else
+				timeout = final - diff;
+		}
 
 		fd = wl_display_get_fd(wl_state->wl_display);
 		pfd.fd = fd;
 		pfd.events = POLLIN;
 		pfd.revents = 0;
 
-		if (poll(&pfd, 1, 10) > 0 && (pfd.revents & POLLIN))
-			wl_display_dispatch(wl_state->wl_display);
+		int p = poll(&pfd, 1, timeout);
+
+		if (p > 0 && (pfd.revents & POLLIN))
+			wl_display_read_events(wl_state->wl_display);
+		else
+			wl_display_cancel_read(wl_state->wl_display);
 	}
 	if (wl_state && wl_state->eventdone) {
 		int done = 1;

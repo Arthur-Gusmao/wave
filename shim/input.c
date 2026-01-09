@@ -82,6 +82,9 @@ static void
 pointer_button(void *data, struct wl_pointer *pointer, uint32_t serial,
 	uint32_t time, uint32_t button, uint32_t state)
 {
+	/* to avoid freeze up when repeating text */
+	repeat.isactive = 0;
+	
 	int plan9_button = 0;
 
 	if (!wl_state || !wl_state->mousec)
@@ -130,7 +133,6 @@ static const struct wl_pointer_listener pointer_listener = {
 	.axis = pointer_axis,
 };
 
-
 static void
 keyboard_keymap(void *data, struct wl_keyboard *keyboard,
 	uint32_t format, int fd, uint32_t size)
@@ -171,7 +173,8 @@ static void
 keyboard_leave(void *data, struct wl_keyboard *keyboard,
 	uint32_t serial, struct wl_surface *surface)
 {
-	/* kb focus lost */
+	repeat.isactive = 0;
+	return;
 }
 
 static void
@@ -185,6 +188,11 @@ keyboard_key(void *data, struct wl_keyboard *keyboard,
 
 	if (!wl_state || !wl_state->kbdc || !xkb_state)
 		return;
+	
+	if (state == WL_KEYBOARD_KEY_STATE_RELEASED) {
+		repeat.isactive = 0;
+		return;
+	}
 
 	if (state != WL_KEYBOARD_KEY_STATE_PRESSED)
 		return;
@@ -197,7 +205,7 @@ keyboard_key(void *data, struct wl_keyboard *keyboard,
 	if (len <= 0 || len >= sizeof(buf))
 		return;
 
-	/* rune*/
+	/* rune */
 	buf[len] = 0;
 	chartorune(&rune, buf);
 
@@ -231,6 +239,11 @@ keyboard_key(void *data, struct wl_keyboard *keyboard,
 
 	/* send to keybaord channel */
 	send(wl_state->kbdc, &rune);
+
+	repeat.isactive = 1;
+	repeat.isrepeat = 0;
+	repeat.rune = rune;
+	clock_gettime(CLOCK_MONOTONIC, &repeat.last);
 }
 
 static void
@@ -248,6 +261,7 @@ static void
 keyboard_repeat_info(void *data, struct wl_keyboard *keyboard,
 	int32_t rate, int32_t delay)
 {
+	/* TODO: actually set it here */
 }
 
 static const struct wl_keyboard_listener keyboard_listener = {
