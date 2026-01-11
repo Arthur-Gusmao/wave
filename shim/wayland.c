@@ -307,29 +307,39 @@ int
 wayland_resize_surface(int width, int height)
 {
 	union wld_object object;
+	struct wld_buffer *newbuf;
 
 	if (!wl_state || !wl_state->wld_ctx || !wl_state->surface)
 		return -1;
 	if (width <= 0 || height <= 0)
 		return -1;
-	if (wl_state->wld_buf) {
-		wl_state->wld_oldbuf = wl_state->wld_buf;
-		wl_state->wld_buf = nil;
-	}
-	wl_state->wld_buf = wld_create_buffer(wl_state->wld_ctx, width, height,
+
+	/* skip if dimensions same */
+	if (wl_state->wld_buf &&
+	    wl_state->wld_buf->width == (uint32_t)width &&
+	    wl_state->wld_buf->height == (uint32_t)height)
+		return 0;
+
+	paint_invalidate_cache();
+
+	/* create new buffer first before messing with olde one ne */
+	newbuf = wld_create_buffer(wl_state->wld_ctx, width, height,
 		wl_state->wld_format, 0);
-	if (!wl_state->wld_buf) {
-		wl_state->wld_buf = wl_state->wld_oldbuf;
-		wl_state->wld_oldbuf = nil;
+	if (!newbuf)
+		return -1;
+
+	if (!wld_export(newbuf, WLD_WAYLAND_OBJECT_BUFFER, &object)) {
+		wld_buffer_unreference(newbuf);
 		return -1;
 	}
-	if (!wld_export(wl_state->wld_buf, WLD_WAYLAND_OBJECT_BUFFER, &object)) {
-		wld_buffer_unreference(wl_state->wld_buf);
-		wl_state->wld_buf = wl_state->wld_oldbuf;
-		wl_state->wld_oldbuf = nil;
-		return -1;
-	}
+
+	/* ???????*/
+	if (wl_state->wld_oldbuf)
+		wld_buffer_unreference(wl_state->wld_oldbuf);
+	wl_state->wld_oldbuf = wl_state->wld_buf;
+	wl_state->wld_buf = newbuf;
 	wl_state->wl_buf = object.ptr;
+
 	if (screen)
 		((ImageWld*)screen)->wld_buf = wl_state->wld_buf;
 	return 0;

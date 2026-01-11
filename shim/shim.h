@@ -68,5 +68,6 @@ int wayland_init(char *label, int width, int height);
 void wayland_event_thread(void *arg);
 int wayland_resize_surface(int width, int height);
 void wayland_input_init(void);
+void paint_invalidate_cache(void);
 
 #endif
