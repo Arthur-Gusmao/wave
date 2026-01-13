@@ -167,6 +167,7 @@ wayland_init(char *label, int width, int height)
 	}
 	xdg_toplevel_add_listener(wl_state->xdg_toplevel, &xdg_toplevel_listener, NULL);
 	xdg_toplevel_set_title(wl_state->xdg_toplevel, label);
+	xdg_toplevel_set_app_id(wl_state->xdg_toplevel, "acme");
 	wl_surface_commit(wl_state->surface);
 
 	wl_display_roundtrip(wl_state->wl_display);

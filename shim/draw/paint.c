@@ -10,6 +10,7 @@ static struct { int y; int h; u32int color; } bg_lines[MAX_BG_LINES];
 static int bg_line_count = 0;
 
 static int last_cleared_y = -1;
+static int suppress_text_bg;
 
 static void
 record_bg(int y, int h, u32int color)
@@ -318,6 +319,15 @@ flushimage(Display *d, int visible)
 	return 1;
 }
 
+int
+set_text_bg_suppressed(int suppress)
+{
+	int prev = suppress_text_bg;
+
+	suppress_text_bg = suppress;
+	return prev;
+}
+
 Point
 string(Image *dst, Point p, Image *src, Point sp, Font *f, char *s)
 {
@@ -342,7 +352,7 @@ string(Image *dst, Point p, Image *src, Point sp, Font *f, char *s)
 
 	wld_font_text_extents_n(fw->wld_font, s, len, &ext);
 
-	if (ext.advance > 0) {
+	if (!suppress_text_bg && ext.advance > 0) {
 		u32int bg = lookup_bg(p.y, f->height);
 		r = Rect(p.x, p.y, p.x + (int)ext.advance, p.y + f->height);
 		if (dst == screen || dst == display->screenimage) {

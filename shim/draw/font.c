@@ -242,12 +242,16 @@ stringbg(Image *dst, Point p, Image *src, Point sp, Font *f, char *s, Image *bg,
 {
 	Point size;
 	Rectangle r;
+	int prev;
 
 	size = stringsize(f, s);
 	r = Rect(p.x, p.y, p.x + size.x, p.y + size.y);
 	if (bg != nil)
 		draw(dst, r, bg, nil, bgp);
-	return string(dst, p, src, sp, f, s);
+	prev = set_text_bg_suppressed(1);
+	p = string(dst, p, src, sp, f, s);
+	set_text_bg_suppressed(prev);
+	return p;
 }
 
 Point
@@ -255,10 +259,14 @@ stringnbg(Image *dst, Point p, Image *src, Point sp, Font *f, char *s, int n, Im
 {
 	int w;
 	Rectangle r;
+	int prev;
 
 	w = stringnwidth(f, s, n);
 	r = Rect(p.x, p.y, p.x + w, p.y + f->height);
 	if (bg != nil)
 		draw(dst, r, bg, nil, bgp);
-	return stringn(dst, p, src, sp, f, s, n);
+	prev = set_text_bg_suppressed(1);
+	p = stringn(dst, p, src, sp, f, s, n);
+	set_text_bg_suppressed(prev);
+	return p;
 }
