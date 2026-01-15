@@ -34,7 +34,7 @@ MAILOBJS = acme/mail/html.o acme/mail/mail.o acme/mail/mesg.o \
 
 .PHONY: all clean test
 
-all: wack acme/mail/Mail
+all: hack acme/mail/Mail
 
 $(WLD_LIB):
 	$(MAKE) -C wld
@@ -135,8 +135,8 @@ acme/xfid.o: acme/xfid.c acme/dat.h acme/fns.h
 acme/sha1.o: acme/sha1.c acme/dat.h acme/fns.h
 	$(CC) $(CFLAGS) -c acme/sha1.c -o acme/sha1.o
 
-wack: $(WLD_LIB) $(SHIMOBJS) $(ACMEOBJS)
-	$(CC) -o wack $(SHIMOBJS) $(ACMEOBJS) $(LDFLAGS) $(LIBS)
+hack: $(WLD_LIB) $(SHIMOBJS) $(ACMEOBJS)
+	$(CC) -o hack $(SHIMOBJS) $(ACMEOBJS) $(LDFLAGS) $(LIBS)
 
 acme/mail/html.o: acme/mail/html.c acme/mail/dat.h
 	$(CC) $(CFLAGS) -c acme/mail/html.c -o acme/mail/html.o
@@ -168,6 +168,6 @@ test-shim.o: test-shim.c
 clean:
 	rm -f $(SHIMOBJS) $(ACMEOBJS) $(MAILOBJS) acme-wayland acme/mail/Mail test-shim test-shim.o
 
-install: wack
-	install -D wack $(HOME)/bin/wack
+install: hack
+	install -D hack /usr/bin/hack
 
