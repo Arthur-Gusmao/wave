@@ -1106,9 +1106,7 @@ iconinit(void)
 
 	textcols[BACK] = allocimage(display, Rect(0,0,1,1), screen->chan, 1, ACME_TEXT_BACK);
 	textcols[HIGH] = allocimage(display, Rect(0,0,1,1), screen->chan, 1, ACME_TEXT_HIGH);
-	textcols[BORD] = allocimage(display, Rect(0,0,2,2), CMAP8, 1, ACME_TEXT_BORD);
-	draw(textcols[BORD], Rect(1,1,2,2), textcols[BACK], nil, ZP);
-	draw(textcols[BORD], Rect(0,0,1,1), textcols[BACK], nil, ZP);
+	textcols[BORD] = allocimage(display, Rect(0,0,1,1), screen->chan, 1, ACME_TEXT_BORD);
 	textcols[TEXT] = allocimage(display, Rect(0,0,1,1), screen->chan, 1, ACME_TEXT_TEXT);
 	textcols[HTEXT] = allocimage(display, Rect(0,0,1,1), screen->chan, 1, ACME_TEXT_HTEXT);
 
