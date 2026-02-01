@@ -7,17 +7,15 @@ PKG_LIBS != pkg-config --libs wayland-client xkbcommon pixman-1 fontconfig freet
 
 CFLAGS = -g -O2 -Wall -Wno-unused-variable -Wno-unused-function \
          -DPLAN9PORT -D_DEFAULT_SOURCE -D_BSD_SOURCE \
-         -I. -I./plan9/include -I./protocol -I./shim -I./acme \
-         $(PKG_CFLAGS) -iquote ./wld
+         -I. -I$(PLAN9)/include -I./protocol -I./shim -I./acme \
+         $(PKG_CFLAGS)
 
-LDFLAGS = -L./plan9/lib
+LDFLAGS = -L$(PLAN9)/lib
 LIBS = -Wl,--start-group -lplumb -l9pclient -lmux -lcomplete -lbio -lframe -lthread -l9 -Wl,--end-group \
-       $(WLD_LIB) \
+       -lwld \
        -ldrm -ldrm_intel -ldrm_nouveau \
        $(PKG_LIBS) \
        -lcrypto -lpthread -lm -lrt
-
-WLD_LIB = wld/libwld.a
 
 SHIMOBJS = shim/draw/core.o shim/draw/paint.o shim/draw/font.o shim/draw/geom.o \
            shim/draw/input.o shim/draw/window.o shim/draw/snarf.o \
@@ -35,9 +33,6 @@ MAILOBJS = acme/mail/html.o acme/mail/mail.o acme/mail/mesg.o \
 .PHONY: all clean test
 
 all: hack acme/mail/Mail
-
-$(WLD_LIB):
-	$(MAKE) -C wld
 
 shim/draw/core.o: shim/draw/core.c
 	$(CC) $(CFLAGS) -c shim/draw/core.c -o shim/draw/core.o
@@ -135,7 +130,7 @@ acme/xfid.o: acme/xfid.c acme/dat.h acme/fns.h
 acme/sha1.o: acme/sha1.c acme/dat.h acme/fns.h
 	$(CC) $(CFLAGS) -c acme/sha1.c -o acme/sha1.o
 
-hack: $(WLD_LIB) $(SHIMOBJS) $(ACMEOBJS)
+hack: $(SHIMOBJS) $(ACMEOBJS)
 	$(CC) -o hack $(SHIMOBJS) $(ACMEOBJS) $(LDFLAGS) $(LIBS)
 
 acme/mail/html.o: acme/mail/html.c acme/mail/dat.h
@@ -156,10 +151,10 @@ acme/mail/util.o: acme/mail/util.c acme/mail/dat.h
 acme/mail/win.o: acme/mail/win.c acme/mail/dat.h
 	$(CC) $(CFLAGS) -c acme/mail/win.c -o acme/mail/win.o
 
-acme/mail/Mail: $(WLD_LIB) $(MAILOBJS)
+acme/mail/Mail: $(MAILOBJS)
 	$(CC) -o acme/mail/Mail $(MAILOBJS) $(LDFLAGS) $(LIBS)
 
-test-shim: $(WLD_LIB) test-shim.o $(SHIMOBJS)
+test-shim: test-shim.o $(SHIMOBJS)
 	$(CC) -o test-shim test-shim.o $(SHIMOBJS) $(LDFLAGS) $(LIBS)
 
 test-shim.o: test-shim.c
