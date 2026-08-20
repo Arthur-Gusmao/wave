@@ -1,9 +1,0 @@
-hack
-
-hack is wayland acme!
-
-it uses the wld library.
-
-copy your plan9port headers into lib/ , then run make.
-
-hack is designed for use with hevel. 

@@ -71,4 +71,10 @@ void wayland_input_init(void);
 void paint_invalidate_cache(void);
 int set_text_bg_suppressed(int suppress);
 
+/* clipboard */
+int clipboard_init(void);
+void clipboard_dispatch_cmds(void);
+void clipboard_put(char *s);
+char *clipboard_get(void);
+
 #endif

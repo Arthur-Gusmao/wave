@@ -19,7 +19,7 @@ LIBS = -Wl,--start-group -lplumb -l9pclient -lmux -lcomplete -lbio -lframe -lthr
 
 SHIMOBJS = shim/draw/core.o shim/draw/paint.o shim/draw/font.o shim/draw/geom.o \
            shim/draw/input.o shim/draw/window.o shim/draw/snarf.o \
-           shim/wayland.o shim/input.o protocol/xdg-shell-protocol.o
+           shim/wayland.o shim/input.o shim/clipboard.o protocol/xdg-shell-protocol.o
 
 ACMEOBJS = acme/acme.o acme/addr.o acme/buff.o acme/cols.o acme/disk.o \
            acme/ecmd.o acme/edit.o acme/elog.o acme/exec.o acme/file.o \
@@ -32,7 +32,7 @@ MAILOBJS = acme/mail/html.o acme/mail/mail.o acme/mail/mesg.o \
 
 .PHONY: all clean test
 
-all: hack acme/mail/Mail
+all: wave acme/mail/Mail
 
 shim/draw/core.o: shim/draw/core.c
 	$(CC) $(CFLAGS) -c shim/draw/core.c -o shim/draw/core.o
@@ -60,6 +60,9 @@ shim/wayland.o: shim/wayland.c
 
 shim/input.o: shim/input.c
 	$(CC) $(CFLAGS) -c shim/input.c -o shim/input.o
+
+shim/clipboard.o: shim/clipboard.c shim/shim.h shim/wayland-state.h
+	$(CC) $(CFLAGS) -c shim/clipboard.c -o shim/clipboard.o
 
 protocol/xdg-shell-protocol.o: protocol/xdg-shell-protocol.c
 	$(CC) $(CFLAGS) -c protocol/xdg-shell-protocol.c -o protocol/xdg-shell-protocol.o
@@ -130,8 +133,8 @@ acme/xfid.o: acme/xfid.c acme/dat.h acme/fns.h
 acme/sha1.o: acme/sha1.c acme/dat.h acme/fns.h
 	$(CC) $(CFLAGS) -c acme/sha1.c -o acme/sha1.o
 
-hack: $(SHIMOBJS) $(ACMEOBJS)
-	$(CC) -o hack $(SHIMOBJS) $(ACMEOBJS) $(LDFLAGS) $(LIBS)
+wave: $(SHIMOBJS) $(ACMEOBJS)
+	$(CC) -o wave $(SHIMOBJS) $(ACMEOBJS) $(LDFLAGS) $(LIBS)
 
 acme/mail/html.o: acme/mail/html.c acme/mail/dat.h
 	$(CC) $(CFLAGS) -c acme/mail/html.c -o acme/mail/html.o
@@ -161,8 +164,8 @@ test-shim.o: test-shim.c
 	$(CC) $(CFLAGS) -c test-shim.c -o test-shim.o
 
 clean:
-	rm -f $(SHIMOBJS) $(ACMEOBJS) $(MAILOBJS) acme-wayland acme/mail/Mail test-shim test-shim.o
+	rm -f $(SHIMOBJS) $(ACMEOBJS) $(MAILOBJS) wave acme/mail/Mail test-shim test-shim.o
 
-install: hack
-	install -D hack /usr/bin/hack
+install: wave
+	install -D wave /usr/bin/wave
 
