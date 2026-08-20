@@ -34,13 +34,16 @@ MAILOBJS = acme/mail/html.o acme/mail/mail.o acme/mail/mesg.o \
 
 all: wave acme/mail/Mail
 
+config.h: config.def.h
+	cp $< $@
+
 shim/draw/core.o: shim/draw/core.c
 	$(CC) $(CFLAGS) -c shim/draw/core.c -o shim/draw/core.o
 
-shim/draw/paint.o: shim/draw/paint.c
+shim/draw/paint.o: shim/draw/paint.c config.h
 	$(CC) $(CFLAGS) -c shim/draw/paint.c -o shim/draw/paint.o
 
-shim/draw/font.o: shim/draw/font.c
+shim/draw/font.o: shim/draw/font.c config.h
 	$(CC) $(CFLAGS) -c shim/draw/font.c -o shim/draw/font.o
 
 shim/draw/geom.o: shim/draw/geom.c
@@ -55,7 +58,7 @@ shim/draw/window.o: shim/draw/window.c
 shim/draw/snarf.o: shim/draw/snarf.c
 	$(CC) $(CFLAGS) -c shim/draw/snarf.c -o shim/draw/snarf.o
 
-shim/wayland.o: shim/wayland.c
+shim/wayland.o: shim/wayland.c config.h
 	$(CC) $(CFLAGS) -c shim/wayland.c -o shim/wayland.o
 
 shim/input.o: shim/input.c
@@ -67,7 +70,7 @@ shim/clipboard.o: shim/clipboard.c shim/shim.h shim/wayland-state.h
 protocol/xdg-shell-protocol.o: protocol/xdg-shell-protocol.c
 	$(CC) $(CFLAGS) -c protocol/xdg-shell-protocol.c -o protocol/xdg-shell-protocol.o
 
-acme/acme.o: acme/acme.c acme/dat.h acme/fns.h
+acme/acme.o: acme/acme.c acme/dat.h acme/fns.h config.h
 	$(CC) $(CFLAGS) -c acme/acme.c -o acme/acme.o
 
 acme/addr.o: acme/addr.c acme/dat.h acme/fns.h
