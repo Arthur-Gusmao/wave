@@ -252,7 +252,7 @@ threadmain(int argc, char *argv[])
 	cedit = chancreate(sizeof(int), 0);
 	cexit = chancreate(sizeof(int), 0);
 	cwarn = chancreate(sizeof(void*), 1);
-	if(cwait==nil || ccommand==nil || ckill==nil || cxfidalloc==nil || cxfidfree==nil || cerr==nil || cexit==nil || cwarn==nil){
+	if(cwait==nil || ccommand==nil || ckill==nil || cxfidalloc==nil || cxfidfree==nil || cnewwindow==nil || cerr==nil || cexit==nil || cwarn==nil){
 		fprint(2, "acme: can't create initial channels: %r\n");
 		threadexitsall("channels");
 	}
@@ -1096,7 +1096,6 @@ void
 iconinit(void)
 {
 	Rectangle r;
-	Image *tmp;
 
 	tagcols[BACK] = allocimage(display, Rect(0,0,1,1), screen->chan, 1, ACME_TAG_BACK);
 	tagcols[HIGH] = allocimage(display, Rect(0,0,1,1), screen->chan, 1, ACME_TAG_HIGH);

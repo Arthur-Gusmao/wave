@@ -63,6 +63,7 @@ extern int _cursorfd;
 extern char *winsize;
 extern int debug_wayland;
 
+int rectisempty(Rectangle r);
 u32int p9rgba_to_argb(u32int c);
 int wayland_init(char *label, int width, int height);
 void wayland_event_thread(void *arg);

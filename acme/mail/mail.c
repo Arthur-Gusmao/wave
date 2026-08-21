@@ -104,7 +104,7 @@ threadmain(int argc, char *argv[])
 		outgoing = EARGF(usage());
 		break;
 	case 'm':
-		smprint(maildir, "%s/", EARGF(usage()));
+		maildir = smprint("%s/", EARGF(usage()));
 		break;
 	case 'n':
 		srvname = EARGF(usage());
@@ -165,9 +165,13 @@ threadmain(int argc, char *argv[])
 	if(outgoing == nil)
 		outgoing = estrstrdup(mailboxdir, "/outgoing");
 
-	mbox.ctlfd = fsopen(mailfs, estrstrdup(mboxname, "/ctl"), OWRITE);
+	char *ctlname;
+
+	ctlname = estrstrdup(mboxname, "/ctl");
+	mbox.ctlfd = fsopen(mailfs, ctlname, OWRITE);
 	if(mbox.ctlfd == nil)
-		error("can't open %s: %r", estrstrdup(mboxname, "/ctl"));
+		error("can't open %s: %r", ctlname);
+	free(ctlname);
 
 	fsname = estrdup(name);
 	if(newdir && argc > 0){

@@ -474,7 +474,7 @@ mesgsend(Message *m)
 	}
 
 	ofd = open(outgoing, OWRITE|OCEXEC);	/* no error check necessary */
-	if(ofd > 0){
+	if(ofd >= 0){
 		/* From dhog Fri Aug 24 22:13:00 EDT 2001 */
 		now = ctime(time(0));
 		seek(ofd, 0, 2);
@@ -549,14 +549,14 @@ mesgsend(Message *m)
 		write2(p[1], ofd, "\n", 1, 0);
 
 	/* these look like pseudo-attachments in the "outgoing" box */
-	if(ofd>0 && natt>0){
+	if(ofd>=0 && natt>0){
 		for(i=0; i<natt; i++)
 			if(included[i])
 				fprint(ofd, "=====> Include: %s\n", attlist[i]);
 			else
 				fprint(ofd, "=====> Attach: %s\n", attlist[i]);
 	}
-	if(ofd > 0)
+	if(ofd >= 0)
 		write(ofd, "\n", 1);
 
 	for(i=0; i<natt; i++)

@@ -41,19 +41,12 @@ lookup_bg(int y, int h)
 	return ACME_TEXT_BACK;
 }
 
-static int rectisempty(Rectangle r);
 static void markdirty(Rectangle r);
 
 void
 paint_invalidate_cache(void)
 {
-	/* no-op for now cuz wtv */
-}
-
-static int
-rectisempty(Rectangle r)
-{
-	return r.min.x >= r.max.x || r.min.y >= r.max.y;
+	/* no-op for now */
 }
 
 static void
@@ -103,10 +96,9 @@ draw(Image *dst, Rectangle r, Image *src, Image *mask, Point p)
 			return;
 		}
 		markdirty(dr);
-		if (debug_wayland == 1) {
+		if (debug_wayland) {
 			fprint(2, "draw: screen r=%d,%d %dx%d\n",
 				dr.min.x, dr.min.y, w, h);
-			debug_wayland = 2;
 		}
 	} else if (d->wld_buf) {
 		wld_set_target_buffer(wl_state->renderer, d->wld_buf);
@@ -118,7 +110,7 @@ draw(Image *dst, Rectangle r, Image *src, Image *mask, Point p)
 		color = p9rgba_to_argb(s->solid_color);
 		if (h >= 10 && w >= 200)
 			record_bg(dr.min.y, h, s->solid_color);
-		/* bounds check against actual bufsize, maybe fix segfaut on reszie */
+		/* bounds check against actual bufsize, maybe fix segfault on resize */
 		if (wl_state->wld_buf) {
 			int bw = wl_state->wld_buf->width;
 			int bh = wl_state->wld_buf->height;
@@ -148,8 +140,6 @@ draw(Image *dst, Rectangle r, Image *src, Image *mask, Point p)
 		if (w <= 0 || h <= 0)
 			return;
 
-		if (!srcbuf)
-			return;
 		/* bounds check against actual bufsize */
 		if (wl_state->wld_buf) {
 			int bw = wl_state->wld_buf->width;
@@ -159,7 +149,7 @@ draw(Image *dst, Rectangle r, Image *src, Image *mask, Point p)
 			if (dr.min.x < 0 || dr.min.y < 0 || w <= 0 || h <= 0)
 				return;
 		}
-		/* handle overlapping copies!!!!!!!!!!! */
+		/* handle overlapping copies */
 		if (srcbuf == wl_state->wld_buf &&
 		    !(sr.min.x >= dr.min.x + w || dr.min.x >= sr.min.x + w ||
 		      sr.min.y >= dr.min.y + h || dr.min.y >= sr.min.y + h)) {
@@ -225,7 +215,7 @@ fillellipse(Image *dst, Point c, int a, int b, Image *src, Point sp)
 			markdirty(r);
 	}
 
-	/*wld has no ellipse, fuck*/
+	/* wld has no ellipse, approximate with bounding rectangle */
 	if (s->is_solid) {
 		wld_fill_rectangle(wl_state->renderer, p9rgba_to_argb(s->solid_color),
 			c.x - a, c.y - b, a*2, b*2);
@@ -258,7 +248,7 @@ line(Image *dst, Point p0, Point p1, int end0, int end1, int thick, Image *src, 
 			markdirty(r);
 	}
 
-	/* draw lines as thin rectangle, hacky, sue me */
+	/* draw lines as thin rectangle */
 	if (s->is_solid) {
 		int dx = p1.x - p0.x;
 		int dy = p1.y - p0.y;
@@ -300,9 +290,8 @@ flushimage(Display *d, int visible)
 	wld_flush(wl_state->renderer);
 	if (wl_state->wl_buf && wl_state->surface)
 		wl_surface_attach(wl_state->surface, wl_state->wl_buf, 0, 0);
-	if (debug_wayland == 2) {
+	if (debug_wayland) {
 		fprint(2, "flushimage: commit ok\n");
-		debug_wayland = 3;
 	}
 	if (wl_state->surface)
 		wl_surface_commit(wl_state->surface);

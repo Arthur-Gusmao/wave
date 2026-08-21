@@ -38,7 +38,7 @@ initdraw(void(*error)(Display*, char*), char *fontname, char *label)
 	d = mallocz(sizeof(Display), 1);
 	d->error = error;
 	d->bufsize = 8000;
-	d->buf = malloc(d->bufsize);
+	d->buf = mallocz(d->bufsize, 0);
 	d->bufp = d->buf;
 	d->dpi = DefaultDPI;
 

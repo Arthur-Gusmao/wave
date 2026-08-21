@@ -46,7 +46,7 @@ Rectangle canonrect(Rectangle r)
 int rectXrect(Rectangle a, Rectangle b) { return a.min.x < b.max.x && a.max.x > b.min.x && a.min.y < b.max.y && a.max.y > b.min.y; }
 int rectinrect(Rectangle a, Rectangle b) { return a.min.x >= b.min.x && a.min.y >= b.min.y && a.max.x <= b.max.x && a.max.y <= b.max.y; }
 
-static int
+int
 rectisempty(Rectangle r)
 {
 	return r.min.x >= r.max.x || r.min.y >= r.max.y;

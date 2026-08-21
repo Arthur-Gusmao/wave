@@ -308,7 +308,7 @@ static void keyboard_key(void *data, struct wl_keyboard *keyboard,
     rune = Kdel;
   }
 
-  /* send to keybaord channel */
+  /* send to keyboard channel */
 send:
   send(wl_state->kbdc, &rune);
 

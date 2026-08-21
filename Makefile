@@ -5,7 +5,7 @@ CC = clang
 PKG_CFLAGS != pkg-config --cflags wayland-client xkbcommon pixman-1 fontconfig freetype2
 PKG_LIBS != pkg-config --libs wayland-client xkbcommon pixman-1 fontconfig freetype2
 
-CFLAGS = -g -O2 -Wall -Wno-unused-variable -Wno-unused-function \
+CFLAGS = -g -O2 -Wall \
          -DPLAN9PORT -D_DEFAULT_SOURCE -D_BSD_SOURCE \
          -I. -I$(PLAN9)/include -I./protocol -I./shim -I./acme \
          $(PKG_CFLAGS)
@@ -30,7 +30,7 @@ ACMEOBJS = acme/acme.o acme/addr.o acme/buff.o acme/cols.o acme/disk.o \
 MAILOBJS = acme/mail/html.o acme/mail/mail.o acme/mail/mesg.o \
            acme/mail/reply.o acme/mail/util.o acme/mail/win.o
 
-.PHONY: all clean test
+.PHONY: all clean
 
 all: wave acme/mail/Mail
 
@@ -160,15 +160,10 @@ acme/mail/win.o: acme/mail/win.c acme/mail/dat.h
 acme/mail/Mail: $(MAILOBJS)
 	$(CC) -o acme/mail/Mail $(MAILOBJS) $(LDFLAGS) $(LIBS)
 
-test-shim: test-shim.o $(SHIMOBJS)
-	$(CC) -o test-shim test-shim.o $(SHIMOBJS) $(LDFLAGS) $(LIBS)
-
-test-shim.o: test-shim.c
-	$(CC) $(CFLAGS) -c test-shim.c -o test-shim.o
-
 clean:
-	rm -f $(SHIMOBJS) $(ACMEOBJS) $(MAILOBJS) wave acme/mail/Mail test-shim test-shim.o
+	rm -f $(SHIMOBJS) $(ACMEOBJS) $(MAILOBJS) wave acme/mail/Mail config.h
 
-install: wave
+install: wave acme/mail/Mail
 	install -D wave /usr/bin/wave
+	install -D acme/mail/Mail /usr/bin/Mail
 

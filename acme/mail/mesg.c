@@ -280,7 +280,7 @@ mesgadd(Message *mbox, char *dir, Dir *d, char *digest)
 	if(mbox->head == nil)
 		mbox->head = m;
 
-	if (m->level != 1){
+	if(m->level != 1){
 		m->recursed = 1;
 		readmbox(m, dir, m->name);
 	}
@@ -469,13 +469,9 @@ mesgmenu(Window *w, Message *mbox)
 void
 mesgmenunew(Window *w, Message *mbox)
 {
-	Biobuf *b;
-
 	winselect(w, "0", 0);
 	w->data = winopenfile(w, "data");
-	b = emalloc(sizeof(Biobuf));
 	mesgmenu0(w, mbox, mbox->name, "", 0, w->data, 1, !shortmenu);
-	free(b);
 	if(!mbox->dirty)
 		winclean(w);
 	/* select tag line plus following indented lines, but not final newline (it's distinctive) */

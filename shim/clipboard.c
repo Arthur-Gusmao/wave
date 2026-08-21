@@ -2,7 +2,7 @@
 /*
  * wayland clipboard (wl_data_device) integration
  *
- * copy/paste between hack and other wayland clients.
+ * copy/paste between wave and other wayland clients.
  * all wl_display interaction happens on the event thread.
  */
 
@@ -88,7 +88,8 @@ source_send(void *data, struct wl_data_source *source,
 	if (wl_state != nil && wl_state->snarf_copy) {
 		n = strlen(wl_state->snarf_copy);
 		if (n > 0)
-			write(fd, wl_state->snarf_copy, n);
+			if (write(fd, wl_state->snarf_copy, n) < 0)
+				fprint(2, "clipboard: write failed: %r\n");
 	}
 	close(fd);
 }
@@ -201,6 +202,10 @@ clipboard_put(char *s)
 	memset(&cmd, 0, sizeof(cmd));
 	cmd.op = ClipSet;
 	cmd.text = strdup(s);
+	if (cmd.text == nil) {
+		fprint(2, "clipboard: strdup failed\n");
+		return;
+	}
 	chansend(wl_state->clipreq, &cmd);
 }
 

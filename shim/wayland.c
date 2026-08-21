@@ -269,7 +269,7 @@ int wayland_init(char *label, int width, int height) {
 }
 
 void wayland_event_thread(void *arg) {
-  struct timespec now, last;
+  struct timespec now;
 
   /* ms */
   int timeout;
@@ -291,7 +291,7 @@ void wayland_event_thread(void *arg) {
     int diff = TIMEDIFF(now, repeat.last);
     int final = repeat.isrepeat ? repeat.interval : repeat.delay;
 
-    /* repeat that bitch */
+    /* handle key repeat */
     if (repeat.isactive) {
       if (diff >= final) {
         send(wl_state->kbdc, &repeat.rune);
